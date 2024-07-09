@@ -25,7 +25,7 @@ class BaseView:
         reader = FileReader(userData.in_file_path)
         lines: list[str] = reader.read_file()
         pattern= self.get_pattern()
-        parser = MDFileParser(lines=lines, pattern=pattern)
+        parser = MDFileParser(lines=lines, pattern=pattern, path2File=userData.in_file_path)
         cards:list[AnkiCard]= parser.parse()
         writer  = CSVWriter(userData.out_file_path, cards=cards)
         writer.write()
