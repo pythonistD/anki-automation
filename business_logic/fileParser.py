@@ -40,7 +40,6 @@ class MDFileParser(FileParser):
         for l in lines:
             lineWithMedia = re.search(r'(!\[.*\])(\(.*\))', l)
             if lineWithMedia:
-                part1 = lineWithMedia.group(0)
                 part2 = lineWithMedia.group(1)
                 part3 = lineWithMedia.group(2)
                 oldPath = part3.replace('(', "").replace(')', "")
