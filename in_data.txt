@@ -1,1 +1,1 @@
-C:\Users\Professional\JavaProjects\LearningJava\ClassLoaders\ClassLoaders.md C:\Users\Professional\AnkiCards\LearningJava\ClassLoaders.csv
+C:\Users\user\ProgrammingProjects\JavaProjects\LearningJava C:\Users\user\AnkiCards\LearningJava
