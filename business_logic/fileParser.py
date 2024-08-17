@@ -15,12 +15,16 @@ class FileParser:
         self.lines = lines
         self.pattern  = pattern
         self.path2File = path2File
+        self.media_images = []
 
     def parse(self) -> list[AnkiCard]:
         pass
 
     def handleMedia(lines: list[str])-> None:
         pass
+
+    def add_new_image_path2list(self, path2img:str):
+        self.media_images.append(path2img)
 
     def md2html(self, line) -> str:
         return markdown.markdown(line)
@@ -48,8 +52,9 @@ class MDFileParser(FileParser):
                 fileName = os.path.basename(oldPath)
                 md_file_dir = os.path.dirname(os.path.abspath(self.path2File))
                 absolute2Image = md_file_dir + '\\' + fileDir + '\\' + fileName
+                self.add_new_image_path2list(absolute2Image)
 
-                ankiPathToImage:str = self.copyImage(absolute2Image, ANKI_MEDIA)
+                #ankiPathToImage:str = self.copyImage(absolute2Image, ANKI_MEDIA)
                 newLink = part2 + '(' + fileName + ')'
                 print(newLink)
                 newBody.append("\n")
