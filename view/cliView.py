@@ -5,8 +5,10 @@ from model.ankiEntities import AnkiCard
 from business_logic.fileReader import FileReader
 from business_logic.fileWriter import CSVWriter
 from business_logic.fileParser import MDFileParser
+from business_logic.dirsParser import DirsParser
 
 from dotenv import dotenv_values
+import os
 
 class BaseView:
 
@@ -19,9 +21,39 @@ class BaseView:
     def get_pattern(self)  -> str:
         pass
 
+    def change_working_dir(self, path_to_root_dir:str):
+        os.chdir(path_to_root_dir)
+
+    def validate_userData(self, in_file_path:str, out_file_path:str):
+        if not os.path.isabs(in_file_path) or not os.path.isabs(out_file_path):
+            raise Exception("Пути до файлов должны быть абсолютными!")
+        if not os.path.isdir(out_file_path):
+            raise Exception("Вторым аргументом должно идти имя директории, где будут сохранены карточки!")
+
+    def create_csv_from_md_file(self, abs_path_to_md_file: str, abs_path_to_csv_file: str, pattern:str):
+        reader = FileReader(abs_path_to_md_file)
+        lines: list[str] = reader.read_file()
+        parser = MDFileParser(lines=lines, pattern=pattern, path2File=abs_path_to_md_file)
+        cards:list[AnkiCard]= parser.parse()
+        writer  = CSVWriter(abs_path_to_csv_file, cards=cards)
+        writer.write()
+
+    def get_csv_out_file_path(self, base_csv_path:str, file_basename:str) -> str:
+        file_name = file_basename.split(".")[0] + ".csv"
+        return os.path.join(base_csv_path, file_name)
+
 
     def run_app(self):
         userData: UserInputData = self.get_data()
+        pattern= self.get_pattern()
+        #self.change_working_dir(userData.in_file_path)
+        dirsParser: DirsParser = DirsParser(userData.in_file_path)
+        all_md_files = dirsParser.parse_dirs()
+        for md in all_md_files:
+            csv_file_path = self.get_csv_out_file_path(userData.out_file_path, os.path.basename(md))
+            self.create_csv_from_md_file(md, csv_file_path, pattern)
+
+        '''
         reader = FileReader(userData.in_file_path)
         lines: list[str] = reader.read_file()
         pattern= self.get_pattern()
@@ -29,6 +61,8 @@ class BaseView:
         cards:list[AnkiCard]= parser.parse()
         writer  = CSVWriter(userData.out_file_path, cards=cards)
         writer.write()
+
+        '''
 
 
 class CLIView(BaseView):
@@ -43,6 +77,8 @@ class CLIView(BaseView):
             case  "2":
                 in_f, out_f  = self.read_from_stdin()
 
+        self.validate_userData(in_f, out_f)
+
         return UserInputData(in_f, out_f)
     
     def read_from_file(self)  -> list[str]:
@@ -55,7 +91,7 @@ class CLIView(BaseView):
             return f.readlines()[0].split(" ")
 
     def read_from_stdin(self) -> list[str]:
-        return input("Введите: <path_to_md_file> <path_to_out_file>: ").split(" ")
+        return input("Введите: <path_to_md_file_or_dir> <path_to_out_dir>: ").split(" ")
     
     def get_pattern(self)   -> str:
         val = input("Карточка начинается с:\n (1) # <digit>.\n (2) ## \n (3) Ввести свой патерн\n ")

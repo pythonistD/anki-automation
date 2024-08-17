@@ -6,7 +6,7 @@ from PIL import Image
 
 from model.ankiEntities import AnkiCard
 
-ANKI_MEDIA = r"C:\Users\Professional\AppData\Roaming\Anki2\1-й пользователь\collection.media"
+ANKI_MEDIA = r"C:\Users\user\AppData\Roaming\Anki2\1-й пользователь\collection.media"
 
 
 class FileParser:
