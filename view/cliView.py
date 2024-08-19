@@ -9,6 +9,7 @@ from business_logic.dirsParser import DirsParser
 
 from dotenv import dotenv_values
 import os
+import re
 
 class BaseView:
 
@@ -30,6 +31,10 @@ class BaseView:
     def validate_userData(self, in_file_path:str, out_file_path:str):
         if not os.path.isabs(in_file_path) or not os.path.isabs(out_file_path):
             raise Exception("Пути до файлов должны быть абсолютными!")
+        if not os.path.exists(out_file_path):
+            print(f"Директория {out_file_path} не создана!")
+            print(f"Создаю директорию {out_file_path}")
+            os.makedirs(out_file_path)
         if not os.path.isdir(out_file_path):
             raise Exception("Вторым аргументом должно идти имя директории, где будут сохранены карточки!")
 
@@ -94,7 +99,10 @@ class CLIView(BaseView):
             file_path = input("Введите путь к файлу: ")
 
         with open(file_path, 'r', encoding='utf-8') as f:
-            return f.readlines()[0].split(" ")
+            pathes:list[str] = re.findall(r'[a-zA-Z]:\\(?:[^\\:*?"<>|\r\n]+\\)*[^\\:*?"<>|\r\n]+', f.readlines()[0])
+            if len(pathes) != 2:
+                raise Exception("Должны быть указаны как путь до директории с карточками, так и путь, где должны быть созданы карточки")
+            return pathes
 
     def read_from_stdin(self) -> list[str]:
         return input("Введите: <path_to_md_file_or_dir> <path_to_out_dir>: ").split(" ")
